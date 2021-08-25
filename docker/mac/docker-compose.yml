@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  web:
+    image: nginx:1.21-alpine
+    ports:
+      - ${LOCAL_IP}:443:443
+      - ${LOCAL_IP}:80:80
+    container_name: ${WEB_CONTAINER}
+    env_file:
+      - .env
+    volumes:
+      # volume
+      - ./web/default.conf:/etc/nginx/conf.d/default.conf
+      - ./web/ssl/cert.pem:/etc/ssl/certs/cert.pem
+      - ./web/ssl/key.pem:/etc/ssl/certs/key.pem
+    depends_on:
+      - app
+  app:
+    image: node:14.15-alpine3.13
+    working_dir: /nuxt-dojo
+    container_name: ${APP_CONTAINER}
+    env_file:
+      - .env
+    tty: true
+    volumes:
+      - ../../nuxt-dojo/components:/nuxt-dojo/components
+      - ../../nuxt-dojo/pages:/nuxt-dojo/pages
+      - ../../nuxt-dojo/static:/nuxt-dojo/static
+      - ../../nuxt-dojo/store:/nuxt-dojo/store
+      - ../../nuxt-dojo/test:/nuxt-dojo/test
+      - ../../nuxt-dojo/.babelrc:/nuxt-dojo/.babelrc
+      - ../../nuxt-dojo/jest.config.js:/nuxt-dojo/jest.config.js
+      - ../../nuxt-dojo/nuxt.config.js:/nuxt-dojo/nuxt.config.js
+      - ../../nuxt-dojo/package.json:/nuxt-dojo/package.json
+      - ../../nuxt-dojo/yarn.lock:/nuxt-dojo/yarn.lock
+      - node-volume:/nuxt-dojo/node_modules
+
+volumes:
+  node-volume:
+    name: nuxt-dojo-node
